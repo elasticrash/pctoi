@@ -84,6 +84,11 @@ fn collinearity(
     phi: f32,
     kapa: f32,
 ) -> f32 {
+    o: f32 = gtr(omega);
+    f: f32 = gtr(phi);
+    k: f32 = gtr(kapa);
+
+
     0.0
 }
 
@@ -102,3 +107,26 @@ fn collinearityy(
 ) -> f32 {
     0.0
 }
+
+fn gtr(r: f32) -> f32 {
+    (r / 200f32) * std::f32::consts::PI
+}
+
+
+fn r11(phi:f32, kapa:f32) -> f32 {
+    phi.cos() * kapa.cos()
+}
+
+fn r12(omega:f32, phi:f32, kapa:f32) -> f32 {
+    omega.cos() * kapa.sin() + omega.sin() * phi.sin() * kapa.cos()
+}
+
+fn r13(omega:f32, phi:f32, kapa:f32) -> f32 {
+    omega.sin() * kapa.sin() - omega.cos() * phi.sin() * kapa.cos()
+}
+
+fn r21(phi:f32, kapa:f32) -> f32 {
+    -phi.cos() * kapa.sin()
+}
+
+
