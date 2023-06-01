@@ -6,8 +6,8 @@ pub struct Camera {
     pub yo: f32,
     pub k1: f32,
     pub k2: f32,
-    pub width: i32,
-    pub height: i32,
+    pub width: u32,
+    pub height: u32,
     pub x_o: f32,
     pub y_o: f32,
     pub z_o: f32,
@@ -25,8 +25,8 @@ impl Camera {
         let yo = parts[3].parse::<f32>().unwrap();
         let k1 = parts[4].parse::<f32>().unwrap();
         let k2 = parts[5].parse::<f32>().unwrap();
-        let width = parts[6].parse::<i32>().unwrap();
-        let height = parts[7].parse::<i32>().unwrap();
+        let width = parts[6].parse::<u32>().unwrap();
+        let height = parts[7].parse::<u32>().unwrap();
         let x_o = parts[8].parse::<f32>().unwrap();
         let y_o = parts[9].parse::<f32>().unwrap();
         let z_o = parts[10].parse::<f32>().unwrap();
@@ -64,16 +64,16 @@ impl Point {
     pub fn new(line: String) -> Self {
         let parts = line.split_whitespace().collect::<Vec<&str>>();
 
-        let r_x = parts[0].parse::<f32>().unwrap();
-        let r_y = parts[1].parse::<f32>().unwrap();
-        let r_z = parts[2].parse::<f32>().unwrap();
+        let r_x = parts[0].parse::<f32>().unwrap() * 1000f32;
+        let r_y = parts[1].parse::<f32>().unwrap() * 1000f32;
+        let r_z = parts[2].parse::<f32>().unwrap() * 1000f32;
         let int = parts[3].parse::<u8>().unwrap();
 
         Point { r_x, r_y, r_z, int }
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ExPnt {
     pub r_x: f32,
     pub r_y: f32,
