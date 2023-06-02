@@ -9,19 +9,26 @@ use crate::image_utils::save_image;
 use crate::models::{Camera, ExPnt, Point};
 use crate::vision::project;
 use std::cmp::Ordering;
+use std::env;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+    if !Path::new(&args[1]).exists() {
+        println!("File does not exist, please provide the correct path");
+        return;
+    }
+
     let camera: Camera = match read_lines("orientation").expect("file to be there").next() {
         Some(Ok(line)) => Camera::new(line),
         _ => {
             panic!("Error reading camera orientation");
         }
     };
-    println!("{:?}", camera);
-    let cloud: Vec<Point> = read_lines("cloud.xyzi")
+    println!("{}", camera);
+    let cloud: Vec<Point> = read_lines(args[1].clone())
         .expect("file to be there")
         .map(|line| Point::new(line.unwrap()))
         .collect();
@@ -66,9 +73,9 @@ fn threshold(sort: &Vec<ExPnt>, camera: &Camera) -> Vec<ExPnt> {
                 camera.x_o,
                 camera.y_o,
                 camera.z_o,
-                sort[l + k].r_x,
-                sort[l + k].r_y,
-                sort[l + k].r_z,
+                sort[l + k].x,
+                sort[l + k].y,
+                sort[l + k].z,
             ));
         }
 
@@ -80,16 +87,16 @@ fn threshold(sort: &Vec<ExPnt>, camera: &Camera) -> Vec<ExPnt> {
                     camera.x_o,
                     camera.y_o,
                     camera.z_o,
-                    sort[l + t].r_x,
-                    sort[l + t].r_y,
-                    sort[l + t].r_z,
+                    sort[l + t].x,
+                    sort[l + t].y,
+                    sort[l + t].z,
                 )
             {
                 projection.push(ExPnt {
-                    r_x: sort[l + t].r_x,
-                    r_y: sort[l + t].r_y,
-                    r_z: sort[l + t].r_z,
-                    int: sort[l + t].int,
+                    x: sort[l + t].x,
+                    y: sort[l + t].y,
+                    z: sort[l + t].z,
+                    ptype: sort[l + t].ptype,
                     p_x: sort[l + t].p_x,
                     p_y: sort[l + t].p_y,
                     p_z: 0,
