@@ -36,7 +36,10 @@ pub fn save_image(pr: Vec<ExPnt>, camera: &Camera) {
                     image.put_pixel(x, y, Rgb([p.int, p.int, p.int]));
                 }
                 None => {
-                    image.put_pixel(x, y, Rgb([0, 0, 0]));
+                    
+                    let int = interpolate_nearest_pixel(&hm, x, y);
+                    image.put_pixel(x, y, Rgb([int, int, int]));
+                    //image.put_pixel(x, y, Rgb([0, 0, 0]));
                 }
             }
         }
@@ -44,4 +47,22 @@ pub fn save_image(pr: Vec<ExPnt>, camera: &Camera) {
 
     let save_path = "output.png";
     image.save(save_path).expect("Failed to save image");
+}
+
+fn interpolate_nearest_pixel(hm : &HashMap<String, (ExPnt, f32)>, x: u32, y: u32) -> u8 {
+    let mut color: Vec<i32>  = Vec::new();
+    for i in -1_i32..2_i32 {
+        for j in -1_i32..2_i32 {
+            match hm.get(&format!("{}-{}", x as i32 + i, y as i32 + j)) {
+                Some((p, dist)) => {
+                    color.push(p.int as i32);
+                }
+                None => {}
+            }
+        }
+    }
+    if color.len() == 0 {
+        return 0;
+    }
+    (color.clone().into_iter().sum::<i32>()  / color.len() as i32) as u8 
 }
