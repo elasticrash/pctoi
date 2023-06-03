@@ -6,28 +6,46 @@ mod vision;
 
 use crate::helper::distance;
 use crate::image_utils::save_image;
-use crate::models::{Camera, ExPnt, Point};
+use crate::models::{Configuration, ExPnt, Point};
 use crate::vision::project;
 use std::cmp::Ordering;
 use std::env;
+use std::fs;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
+use toml;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if !Path::new(&args[1]).exists() {
+    let filename = &args[1];
+    let config = "config.toml";
+
+    if !Path::new(filename).exists() {
         println!("File does not exist, please provide the correct path");
         return;
     }
 
-    let camera: Camera = match read_lines("orientation").expect("file to be there").next() {
-        Some(Ok(line)) => Camera::new(line),
-        _ => {
-            panic!("Error reading camera orientation");
+    let contents = match fs::read_to_string(config) {
+        Ok(c) => c,
+        Err(_) => {
+            eprintln!(
+                "File does not exist, please provide the correct path `{}`",
+                config
+            );
+            return;
         }
     };
-    println!("{}", camera);
+
+    let configuration: Configuration = match toml::from_str(&contents) {
+        Ok(d) => d,
+        Err(e) => {
+            eprintln!("Unable to read configuration data `{}` {}", filename, e);
+            return;
+        }
+    };
+
+    println!("{:?}", configuration);
     let cloud: Vec<Point> = read_lines(args[1].clone())
         .expect("file to be there")
         .map(|line| Point::new(line.unwrap()))
@@ -35,14 +53,14 @@ fn main() {
 
     println!("no of points: {}", cloud.len());
 
-    let mut real = project(cloud, &camera);
+    let mut real = project(cloud, &configuration);
     real.sort_by(|a, b| match a.p_x.cmp(&b.p_x) {
         Ordering::Equal => a.p_y.cmp(&b.p_y),
         other => other,
     });
 
-    let project = threshold(&real, &camera);
-    save_image(project, &camera);
+    let project = threshold(&real, &configuration);
+    save_image(project, &configuration);
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
@@ -53,7 +71,7 @@ where
     Ok(io::BufReader::new(file).lines())
 }
 
-fn threshold(sort: &Vec<ExPnt>, camera: &Camera) -> Vec<ExPnt> {
+fn threshold(sort: &Vec<ExPnt>, configuration: &Configuration) -> Vec<ExPnt> {
     let mut projection: Vec<ExPnt> = Vec::new();
 
     let mut l = 0;
@@ -70,9 +88,9 @@ fn threshold(sort: &Vec<ExPnt>, camera: &Camera) -> Vec<ExPnt> {
         let mut tempz = Vec::with_capacity(g);
         for k in 0..g {
             tempz.push(distance(
-                camera.x_o,
-                camera.y_o,
-                camera.z_o,
+                configuration.position.x_o,
+                configuration.position.y_o,
+                configuration.position.z_o,
                 sort[l + k].x,
                 sort[l + k].y,
                 sort[l + k].z,
@@ -84,9 +102,9 @@ fn threshold(sort: &Vec<ExPnt>, camera: &Camera) -> Vec<ExPnt> {
         for t in 0..g {
             if tempz[0] + 0.01
                 > distance(
-                    camera.x_o,
-                    camera.y_o,
-                    camera.z_o,
+                    configuration.position.x_o,
+                    configuration.position.y_o,
+                    configuration.position.z_o,
                     sort[l + t].x,
                     sort[l + t].y,
                     sort[l + t].z,

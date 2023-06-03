@@ -1,63 +1,34 @@
+use serde_derive::Deserialize;
 use std::fmt;
 use std::fmt::Display;
 
-#[derive(Debug)]
+#[derive(Debug, Deserialize)]
+pub struct Configuration {
+    pub camera: Camera,
+    pub image: Image,
+    pub position: Position,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct Camera {
     pub c: f32,
     pub xo: f32,
     pub yo: f32,
-    pub width: u32,
-    pub height: u32,
-    pub x_o: f32,
-    pub y_o: f32,
-    pub z_o: f32,
     pub omega: f32,
     pub phi: f32,
     pub kappa: f32,
 }
 
-impl Camera {
-    pub fn new(orientation: String) -> Self {
-        let parts = orientation.split_whitespace().collect::<Vec<&str>>();
-        let c = parts[0].parse::<f32>().unwrap();
-        let xo = parts[1].parse::<f32>().unwrap();
-        let yo = parts[2].parse::<f32>().unwrap();
-        let width = parts[3].parse::<u32>().unwrap();
-        let height = parts[4].parse::<u32>().unwrap();
-        let x_o = parts[5].parse::<f32>().unwrap();
-        let y_o = parts[6].parse::<f32>().unwrap();
-        let z_o = parts[7].parse::<f32>().unwrap();
-        let omega = parts[8].parse::<f32>().unwrap();
-        let phi = parts[9].parse::<f32>().unwrap();
-        let kappa = parts[10].parse::<f32>().unwrap();
-        Camera {
-            c,
-            xo,
-            yo,
-            width,
-            height,
-            x_o,
-            y_o,
-            z_o,
-            omega,
-            phi,
-            kappa,
-        }
-    }
+#[derive(Debug, Deserialize)]
+pub struct Position {
+    pub x_o: f32,
+    pub y_o: f32,
+    pub z_o: f32,
 }
-
-impl Display for Camera {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "Camera c: {}", self.c)?;
-        writeln!(f, "Camera xo: {} yo: {}", self.xo, self.yo)?;
-        writeln!(f, "User Xo: {} Yo: {} Zo: {}", self.x_o, self.y_o, self.z_o)?;
-        writeln!(
-            f,
-            "Rotations omega: {} phi: {} kappa: {}",
-            self.omega, self.phi, self.kappa
-        )?;
-        write!(f, "")
-    }
+#[derive(Debug, Deserialize)]
+pub struct Image {
+    pub width: u32,
+    pub height: u32,
 }
 
 #[derive(Debug, Clone, Copy)]

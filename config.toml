@@ -1,0 +1,16 @@
+[camera]
+c = 2573.1
+xo = 10.2688
+yo = 7.35163
+omega = 1.23922
+phi = 11.9006
+kappa = 0.415454
+
+[position]
+x_o = 800
+y_o = 1700
+z_o = 19000
+
+[image]
+width = 1296
+height = 972

@@ -1,12 +1,12 @@
 use crate::helper::distance;
-use crate::models::{Camera, ExPnt, PointType};
+use crate::models::{Configuration, ExPnt, PointType};
 use image::Rgb;
 use image::RgbImage;
 use rand::prelude::*;
 use std::collections::HashMap;
 
-pub fn save_image(pr: Vec<ExPnt>, camera: &Camera) {
-    let mut image = RgbImage::new(camera.width, camera.height);
+pub fn save_image(pr: Vec<ExPnt>, configuration: &Configuration) {
+    let mut image = RgbImage::new(configuration.image.width, configuration.image.height);
 
     let mut hm: HashMap<String, (ExPnt, f32)> = HashMap::new();
 
@@ -14,7 +14,12 @@ pub fn save_image(pr: Vec<ExPnt>, camera: &Camera) {
         let pdist = (
             point.clone(),
             distance(
-                camera.x_o, camera.y_o, camera.z_o, point.x, point.y, point.z,
+                configuration.position.x_o,
+                configuration.position.y_o,
+                configuration.position.z_o,
+                point.x,
+                point.y,
+                point.z,
             ),
         );
 
@@ -30,22 +35,20 @@ pub fn save_image(pr: Vec<ExPnt>, camera: &Camera) {
         }
     }
 
-    for x in 0..camera.width {
-        for y in 0..camera.height {
+    for x in 0..configuration.image.width {
+        for y in 0..configuration.image.height {
             match hm.get(&format!("{}-{}", x, y)) {
-                Some((p, _)) => {
-                    match p.ptype {
-                        PointType::PointInt(int) => {
-                            image.put_pixel(x, y, Rgb([int, int, int]));
-                        }
-                        PointType::PointRGB(r,g,b) => {
-                            image.put_pixel(x, y, Rgb([r, g, b]));
-                        }
-                        PointType::Point => {
-                            todo!()
-                        }
+                Some((p, _)) => match p.ptype {
+                    PointType::PointInt(int) => {
+                        image.put_pixel(x, y, Rgb([int, int, int]));
                     }
-                }
+                    PointType::PointRGB(r, g, b) => {
+                        image.put_pixel(x, y, Rgb([r, g, b]));
+                    }
+                    PointType::Point => {
+                        todo!()
+                    }
+                },
                 None => {
                     //let int = interpolate_nearest_pixel(&hm, x, y);
                     //image.put_pixel(x, y, Rgb([int, int, int]));

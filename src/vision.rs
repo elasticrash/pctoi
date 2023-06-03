@@ -1,35 +1,35 @@
 use crate::helper::gtr;
-use crate::models::{Camera, ExPnt, Point};
+use crate::models::{Configuration, ExPnt, Point};
 use crate::rotations::{r11, r12, r13, r21, r22, r23, r31, r32, r33};
 
-pub fn project(points: Vec<Point>, camera: &Camera) -> Vec<ExPnt> {
+pub fn project(points: Vec<Point>, configuration: &Configuration) -> Vec<ExPnt> {
     let mut projected: Vec<ExPnt> = Vec::new();
     for point in points {
         let xa: f32 = collinearity_x(
-            camera.xo,
-            camera.c,
+            configuration.camera.xo,
+            configuration.camera.c,
             point.x,
-            camera.x_o,
+            configuration.position.x_o,
             point.y,
-            camera.y_o,
+            configuration.position.y_o,
             point.z,
-            camera.z_o,
-            camera.omega,
-            camera.phi,
-            camera.kappa,
+            configuration.position.z_o,
+            configuration.camera.omega,
+            configuration.camera.phi,
+            configuration.camera.kappa,
         );
         let ya: f32 = collinearity_y(
-            camera.yo,
-            camera.c,
+            configuration.camera.yo,
+            configuration.camera.c,
             point.x,
-            camera.x_o,
+            configuration.position.x_o,
             point.y,
-            camera.y_o,
+            configuration.position.y_o,
             point.z,
-            camera.z_o,
-            camera.omega,
-            camera.phi,
-            camera.kappa,
+            configuration.position.z_o,
+            configuration.camera.omega,
+            configuration.camera.phi,
+            configuration.camera.kappa,
         );
 
         projected.push(ExPnt {
@@ -37,8 +37,8 @@ pub fn project(points: Vec<Point>, camera: &Camera) -> Vec<ExPnt> {
             y: point.y,
             z: point.z,
             ptype: point.ptype,
-            p_x: (xa + camera.width as f32) as i32,
-            p_y: (-ya + camera.height as f32) as i32,
+            p_x: (xa + configuration.image.width as f32) as i32,
+            p_y: (-ya + configuration.image.height as f32) as i32,
             p_z: 1,
         });
     }
