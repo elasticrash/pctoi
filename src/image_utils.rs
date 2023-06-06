@@ -9,6 +9,8 @@ pub fn save_image(pr: Vec<ExPnt>, configuration: &Configuration) {
     let mut image = RgbImage::new(configuration.image.width, configuration.image.height);
 
     let mut hm: HashMap<String, (ExPnt, f32)> = HashMap::new();
+    let mut max_dist = 0.0;
+    let mut min_dist = f32::MAX;
 
     for point in pr {
         let pdist = (
@@ -23,6 +25,13 @@ pub fn save_image(pr: Vec<ExPnt>, configuration: &Configuration) {
             ),
         );
 
+        if pdist.1 > max_dist {
+            max_dist = pdist.1;
+        }
+        if pdist.1 < min_dist {
+            min_dist = pdist.1;
+        }
+
         match hm.get_mut(&format!("{}-{}", point.p_x, point.p_y)) {
             Some(pnt) => {
                 if pnt.1 > pdist.1 {
@@ -35,6 +44,9 @@ pub fn save_image(pr: Vec<ExPnt>, configuration: &Configuration) {
         }
     }
 
+    println!("Max dist: {}/ Min dist {}", max_dist, min_dist);
+    
+
     for x in 0..configuration.image.width {
         for y in 0..configuration.image.height {
             match hm.get(&format!("{}-{}", x, y)) {
@@ -46,7 +58,9 @@ pub fn save_image(pr: Vec<ExPnt>, configuration: &Configuration) {
                         image.put_pixel(x, y, Rgb([r, g, b]));
                     }
                     PointType::Point => {
-                        todo!()
+                        let scale = max_dist - min_dist;
+                        let color = (255.0 * (1.0 - (scale / 255.0))).round() as u8;
+                        image.put_pixel(x, y, Rgb([color, color, color]));
                     }
                 },
                 None => {
