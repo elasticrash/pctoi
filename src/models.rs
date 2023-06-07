@@ -49,9 +49,9 @@ pub struct Point {
 impl Point {
     pub fn new(line: String) -> Point {
         let parts = line.split_whitespace().collect::<Vec<&str>>();
-        let x = parts[0].parse::<f32>().unwrap() * 1000f32;
-        let y = parts[1].parse::<f32>().unwrap() * 1000f32;
-        let z = parts[2].parse::<f32>().unwrap() * 1000f32;
+        let x = parts[0].parse::<f32>().unwrap();
+        let y = parts[1].parse::<f32>().unwrap();
+        let z = parts[2].parse::<f32>().unwrap();
 
         if parts.len() == 4 {
             let int = parts[3].parse::<u8>().unwrap();
